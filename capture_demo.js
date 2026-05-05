@@ -100,10 +100,15 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
     });
 
     console.log('⏳ Recording in progress...');
-    await page.waitForFunction(() => window.isSortingCompleted === true, { timeout: 300000 });
+    
+    // Safety Race: Wait for sorting signal OR a hard 75-second timeout
+    await Promise.race([
+        page.waitForFunction(() => window.isSortingCompleted === true, { timeout: 300000 }),
+        new Promise(r => setTimeout(r, 75000)) // Force stop after 75s
+    ]).catch(e => console.log('⚠️ Signal wait timed out or failed, proceeding to stop.'));
 
     console.log('✨ Sort finished. Capturing finale...');
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 2000));
 
     console.log('🛑 Stopping...');
     await videoRecorder.stop();
@@ -113,7 +118,8 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
         }
     });
 
-    await new Promise(r => setTimeout(r, 3000));
+    // Give some time for chunks to finalize
+    await new Promise(r => setTimeout(r, 1000));
 
     if (audioChunks.length > 0) {
         fs.writeFileSync(AUDIO_ONLY, Buffer.concat(audioChunks));

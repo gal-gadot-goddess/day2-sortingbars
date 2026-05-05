@@ -221,7 +221,15 @@ const App: React.FC = () => {
           lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
-      timerRef.current = setTimeout(() => { setCurrentStepIndex(prev => prev + 1); }, SPEEDS[speedIndex]);
+
+      // Dynamic Speed: Ensure video doesn't exceed ~40 seconds
+      let waitTime = SPEEDS[speedIndex];
+      if (window.location.search.includes('recording=true')) {
+        // Target 25 seconds max for sorting phase
+        waitTime = Math.max(1, Math.min(50, 25000 / steps.length));
+      }
+
+      timerRef.current = setTimeout(() => { setCurrentStepIndex(prev => prev + 1); }, waitTime);
     } else if (steps.length > 0 && currentStepIndex >= steps.length - 1) {
       if (isPlaying) {
         setIsPlaying(false);
@@ -320,9 +328,10 @@ const App: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  className={`flex-1 rounded-t-full transition-all duration-100 ${color}`}
+                  className="flex-1 rounded-t-full transition-all duration-100"
                   style={{
                     height: `${(val / MAX_VALUE) * 100}%`,
+                    backgroundColor: color,
                     boxShadow: shadow,
                     transform: (isComparing || isSwapping) ? 'scaleY(1.05)' : 'scaleY(1)'
                   }}
