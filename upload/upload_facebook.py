@@ -129,6 +129,7 @@ def upload_to_facebook(video_path, description, title="Algorithm Visualization")
 def upload_to_facebook_story(video_path):
     """
     Upload video to Facebook Page as a Story.
+    Handles both legacy session flow and modern rupload flow.
     """
     print("\n" + "=" * 60)
     print("📘 FACEBOOK STORY UPLOAD STARTING")
@@ -147,71 +148,79 @@ def upload_to_facebook_story(video_path):
     if not video_path_obj.exists():
         raise FileNotFoundError(f"[facebook] Video not found: {video_path}")
 
-    # Endpoint for Video Stories
-    url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
-
     try:
-        print(f"[facebook] 🚀 Uploading Story to Facebook (Sessions API)...")
-        
         file_size = video_path_obj.stat().st_size
         
-        # Step 1: Start Upload Session
-        print(f"[facebook] Step 1: Initiating upload session...")
-        # Note: /video_stories endpoint strictly requires session flow for most apps
-        start_url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
-        start_data = {
+        # Step 1: Initialize Upload
+        print(f"[facebook] Step 1: Initiating story upload...")
+        init_url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
+        init_data = {
             'access_token': access_token,
             'upload_phase': 'start',
             'file_size': file_size
         }
-        res_start = requests.post(start_url, data=start_data, timeout=30)
+        res_init = requests.post(init_url, data=init_data, timeout=30)
         
-        if res_start.status_code != 200:
-             # If "start" fails, we can't proceed. Log detailed error.
-             print(f"[facebook] ❌ Start Phase Error: {res_start.text}")
-             raise Exception(f"Start Phase Failed: {res_start.text}")
-        
-        start_json = res_start.json()
-        upload_session_id = start_json.get('upload_session_id')
-        video_id = start_json.get('video_id')
-        
-        if not upload_session_id:
-             raise Exception(f"No upload_session_id returned. Response: {start_json}")
+        if res_init.status_code != 200:
+             print(f"[facebook] ❌ Init Error: {res_init.text}")
+             raise Exception(f"Facebook Story Init Failed: {res_init.text}")
 
-        print(f"[facebook] Session ID: {upload_session_id}")
-        
-        # Step 2: Transfer File
-        print(f"[facebook] Step 2: Transferring file...")
-        transfer_url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
-        
-        with open(video_path, 'rb') as f:
-            files = {'video_file_chunk': f}
-            transfer_data = {
-                'access_token': access_token,
-                'upload_phase': 'transfer',
-                'start_offset': 0,
-                'upload_session_id': upload_session_id,
-                'video_id': video_id  # Added here too
+        init_json = res_init.json()
+        upload_url = init_json.get('upload_url')
+        video_id = init_json.get('video_id')
+        upload_session_id = init_json.get('upload_session_id')
+
+        if not upload_url and not upload_session_id:
+             raise Exception(f"No upload method returned. Response: {init_json}")
+
+        if upload_url:
+            # Modern rupload flow (as seen in some Page responses)
+            print(f"[facebook] Using modern rupload flow...")
+            headers = {
+                'Authorization': f'OAuth {access_token}',
+                'offset': '0',
+                'file_size': str(file_size),
+                'Content-Type': 'application/octet-stream'
             }
-            res_transfer = requests.post(transfer_url, data=transfer_data, files=files, timeout=600)
-            print(f"[facebook] Transfer Phase Response: {res_transfer.text}")
+            with open(video_path, 'rb') as f:
+                res_transfer = requests.post(upload_url, data=f, headers=headers, timeout=600)
+                print(f"[facebook] Transfer status: {res_transfer.status_code}")
             
-        if res_transfer.status_code != 200:
-            print(f"[facebook] ❌ Transfer Phase Error: {res_transfer.text}")
-            raise Exception(f"Transfer Phase Failed: {res_transfer.text}")
+            # Finalize via finish phase
+            print(f"[facebook] Step 3: Publishing story...")
+            publish_url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
+            publish_data = {
+                'access_token': access_token,
+                'upload_phase': 'finish',
+                'video_id': video_id
+            }
+            res_finish = requests.post(publish_url, data=publish_data, timeout=60)
+        else:
+            # Legacy Session Flow
+            print(f"[facebook] Using legacy session flow...")
+            transfer_url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
+            with open(video_path, 'rb') as f:
+                files = {'video_file_chunk': f}
+                transfer_data = {
+                    'access_token': access_token,
+                    'upload_phase': 'transfer',
+                    'start_offset': 0,
+                    'upload_session_id': upload_session_id,
+                    'video_id': video_id
+                }
+                res_transfer = requests.post(transfer_url, data=transfer_data, files=files, timeout=600)
+                print(f"[facebook] Transfer status: {res_transfer.status_code}")
             
-        # Step 3: Finish Upload
-        print(f"[facebook] Step 3: Finishing upload...")
-        finish_url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
-        finish_data = {
-            'access_token': access_token,
-            'upload_phase': 'finish',
-            'upload_session_id': upload_session_id,
-            'video_id': video_id
-        }
-        res_finish = requests.post(finish_url, data=finish_data, timeout=60)
-        print(f"[facebook] Finish Phase Response: {res_finish.text}")
-        
+            # Step 3: Finish Upload
+            print(f"[facebook] Step 3: Finishing story...")
+            finish_data = {
+                'access_token': access_token,
+                'upload_phase': 'finish',
+                'upload_session_id': upload_session_id,
+                'video_id': video_id
+            }
+            res_finish = requests.post(transfer_url, data=finish_data, timeout=60)
+
         if res_finish.status_code == 200 or res_finish.json().get('success'):
             print(f"[facebook] ✅ SUCCESS! Story uploaded!")
             print(f"[facebook] Video ID: {video_id}")
@@ -223,8 +232,6 @@ def upload_to_facebook_story(video_path):
 
     except Exception as e:
         print(f"[facebook] ❌ ERROR: {e}")
-        # Dont raise here, just print so the main script continues
-        # raise 
         return {'status': 'failed', 'error': str(e)}
 
 if __name__ == '__main__':

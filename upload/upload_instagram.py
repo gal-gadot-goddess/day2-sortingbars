@@ -89,9 +89,12 @@ def upload_to_instagram(video_path, caption, is_story=False):
         video_url = temp_url.replace('tmpfiles.org/', 'tmpfiles.org/dl/')
         
         print(f"[instagram] ✅ Temporary URL created: {video_url}")
-        
-        # Step 2: Create Instagram container with video URL
-        print(f"[instagram] 📦 Step 2: Creating Instagram {media_type} container...")
+
+        # Give some time for the file to be ready for external access
+        print(f"[instagram] ⏳ Waiting 5s for URL stability...")
+        time.sleep(5)
+
+        # Step 2: Create Instagram container with video URL        print(f"[instagram] 📦 Step 2: Creating Instagram {media_type} container...")
         
         container_url = f"https://graph.facebook.com/v18.0/{user_id}/media"
         container_params = {
