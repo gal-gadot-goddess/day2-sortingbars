@@ -1,7 +1,13 @@
 [
-    {
-        "algo": "bubble_sort",
-        "theme": "vampire",
-        "date": "2026-02-14T06:50:00.000Z"
-    }
+  {
+    "algo": "bubble_sort",
+    "theme": "vampire",
+    "date": "2026-02-14T06:50:00.000Z"
+  },
+  {
+    "algo": "stooge_sort",
+    "theme": "vampire",
+    "size": 11,
+    "date": "2026-05-05T11:41:15.225Z"
+  }
 ]
