@@ -15,5 +15,11 @@
     "theme": "frost",
     "size": 24,
     "date": "2026-05-05T13:02:25.569Z"
+  },
+  {
+    "algo": "shell_sort",
+    "theme": "sunset",
+    "size": 20,
+    "date": "2026-05-05T20:06:08.067Z"
   }
 ]
