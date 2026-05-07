@@ -87,8 +87,25 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
 
     console.log('🎬 Starting Capture...');
     await videoRecorder.start(VIDEO_ONLY);
-    await new Promise(r => setTimeout(r, 150));
+    await new Promise(r => setTimeout(r, 200));
 
+    // Prepare completion listeners BEFORE starting the sort
+    let stopReason = 'timeout';
+    const completionPromise = Promise.race([
+        page.waitForFunction(() => window.isSortingCompleted === true, { timeout: 80000 })
+            .then(() => { stopReason = 'signal'; }),
+        new Promise(resolve => {
+            page.on('console', msg => {
+                if (msg.text().includes('SORTING_COMPLETED_SUCCESS')) {
+                    stopReason = 'console_msg';
+                    resolve();
+                }
+            });
+        }),
+        new Promise(r => setTimeout(r, 85000)) // Safety timeout slightly longer than waitForFunction
+    ]);
+
+    console.log('🚀 Triggering Sort...');
     await page.evaluate(() => {
         if (typeof window.startEverything === 'function') {
             window.startEverything();
@@ -99,16 +116,21 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
         }
     });
 
-    console.log('⏳ Recording in progress...');
+    console.log('⏳ Recording in progress (monitoring for completion)...');
     
-    // Safety Race: Wait for sorting signal OR a hard 75-second timeout
-    await Promise.race([
-        page.waitForFunction(() => window.isSortingCompleted === true, { timeout: 300000 }),
-        new Promise(r => setTimeout(r, 75000)) // Force stop after 75s
-    ]).catch(e => console.log('⚠️ Signal wait timed out or failed, proceeding to stop.'));
+    try {
+        await completionPromise;
+    } catch (e) {
+        console.log('⚠️ Completion wait encountered an error or timeout:', e.message);
+    }
 
-    console.log('✨ Sort finished. Capturing finale...');
-    await new Promise(r => setTimeout(r, 2000));
+    if (stopReason === 'signal' || stopReason === 'console_msg') {
+        console.log(`✨ Sort finished (${stopReason}). Capturing finale...`);
+    } else {
+        console.log('⚠️ Sort reached safety timeout. Force stopping...');
+    }
+    
+    await new Promise(r => setTimeout(r, 3000)); // 3s finale
 
     console.log('🛑 Stopping...');
     await videoRecorder.stop();

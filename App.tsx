@@ -179,6 +179,7 @@ const App: React.FC = () => {
   useEffect(() => { generateNewArray(); }, [generateNewArray]);
 
   const startSort = useCallback(() => {
+    (window as any).isSortingCompleted = false;
     initAudio();
     let sortingSteps: SortStep[] = [];
     const id = algorithm.id;
@@ -222,11 +223,12 @@ const App: React.FC = () => {
         }
       }
 
-      // Dynamic Speed: Ensure video doesn't exceed ~40 seconds
+      // Dynamic Speed: Ensure video doesn't exceed ~35-40 seconds
       let waitTime = SPEEDS[speedIndex];
       if (window.location.search.includes('recording=true')) {
-        // Target 25 seconds max for sorting phase
-        waitTime = Math.max(1, Math.min(50, 25000 / steps.length));
+        // Target 25-30 seconds for the sorting phase. 
+        // Min 5ms to keep browser responsive and signals flowing.
+        waitTime = Math.max(5, Math.min(60, 28000 / steps.length));
       }
 
       timerRef.current = setTimeout(() => { setCurrentStepIndex(prev => prev + 1); }, waitTime);
@@ -234,10 +236,14 @@ const App: React.FC = () => {
       if (isPlaying) {
         setIsPlaying(false);
         if (!hasPlayedFinishChime.current) {
+          console.log('🎬 Sorting phase ended, triggering finale...');
           playFinishChime();
           hasPlayedFinishChime.current = true;
-          (window as any).isSortingCompleted = true;
-          console.log('SORTING_COMPLETED_SUCCESS');
+          // Small delay so the final sorted state is visible and chime finishes
+          setTimeout(() => {
+            (window as any).isSortingCompleted = true;
+            console.log('SORTING_COMPLETED_SUCCESS');
+          }, 1000);
         }
       }
     }
