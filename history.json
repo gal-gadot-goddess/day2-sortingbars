@@ -33,5 +33,11 @@
     "theme": "cyberpunk",
     "size": 15,
     "date": "2026-05-06T20:58:32.777Z"
+  },
+  {
+    "algo": "binary_insertion_sort",
+    "theme": "vampire",
+    "size": 25,
+    "date": "2026-05-07T09:49:50.417Z"
   }
 ]
