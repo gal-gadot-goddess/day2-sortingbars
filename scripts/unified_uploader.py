@@ -97,7 +97,7 @@ def main():
     if not is_uploaded(history, content_hash, 'instagram_reel'):
         print("📸 Starting Instagram Reel...")
         try:
-            upload_to_instagram(str(video_path), instagram_full, is_story=False)
+            upload_to_instagram(str(video_path), instagram_full, is_story=False, thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
             mark_uploaded(history, content_hash, 'instagram_reel')
             print("✅ Instagram Reel Success")
         except Exception as e: print(f"❌ Instagram Reel failed: {e}")
@@ -117,7 +117,7 @@ def main():
     if not is_uploaded(history, content_hash, 'facebook_reel'):
         print("📘 Starting Facebook Reel...")
         try:
-            upload_to_facebook(str(video_path), facebook_full, title=title[:100])
+            upload_to_facebook(str(video_path), facebook_full, title=title[:100], thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
             mark_uploaded(history, content_hash, 'facebook_reel')
             print("✅ Facebook Reel Success")
         except Exception as e: print(f"❌ Facebook Reel failed: {e}")
