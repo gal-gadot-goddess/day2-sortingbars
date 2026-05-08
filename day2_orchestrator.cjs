@@ -107,9 +107,16 @@ async function automateDay2() {
 
     const videoName = `output_${selectedAlgo.id}_${selectedTheme}.mp4`;
     const videoPath = path.join(__dirname, videoName);
+    const thumbnailName = `thumbnail_${selectedAlgo.id}_${selectedTheme}.jpg`;
+    const thumbnailPath = path.join(__dirname, thumbnailName);
 
     // Variation: Random Array Size between 10 and 25
-    const selectedSize = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+    let selectedSize = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+
+    // Safety for extremely slow algorithms
+    if (['slow_sort', 'stooge_sort', 'bogo_sort'].includes(selectedAlgo.id)) {
+        selectedSize = Math.min(selectedSize, 14);
+    }
 
     try {
         // 1. Generate Video
@@ -124,7 +131,7 @@ async function automateDay2() {
         // 3. Upload
         console.log("🚀 [3/3] Uploading Video to Social Media...");
         const uploadScript = 'scripts/unified_uploader.py';
-        await runCommand('python', ["\"" + uploadScript + "\"", videoPath], { cwd: __dirname });
+        await runCommand('python', ["\"" + uploadScript + "\"", videoPath, thumbnailPath], { cwd: __dirname });
 
         // 4. Update History
         saveHistory({

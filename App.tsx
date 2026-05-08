@@ -35,7 +35,9 @@ const App: React.FC = () => {
   const [algorithm, setAlgorithm] = useState(ALGORITHMS[initialAlgoId] || ALGORITHMS[AlgorithmType.BUBBLE_SORT]);
   const [currentTheme, setCurrentTheme] = useState(THEMES[initialThemeId] || THEMES.vampire);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [array, setArray] = useState<number[]>([]);
+  const [array, setArray] = useState<number[]>(() => 
+    Array.from({ length: initialSize }, () => Math.floor(Math.random() * (MAX_VALUE - 10) + 10))
+  );
   const [steps, setSteps] = useState<SortStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -223,15 +225,31 @@ const App: React.FC = () => {
         }
       }
 
-      // Dynamic Speed: Ensure video doesn't exceed ~35-40 seconds
+      // Dynamic Speed: Target 30-50s for the sorting phase, cap at 60s
       let waitTime = SPEEDS[speedIndex];
+      let stepsPerTick = 1;
+
       if (window.location.search.includes('recording=true')) {
-        // Target 25-30 seconds for the sorting phase. 
-        // Min 5ms to keep browser responsive and signals flowing.
-        waitTime = Math.max(5, Math.min(60, 28000 / steps.length));
+        const targetDuration = 45000; // Target 45s for the sorting phase
+        const idealWaitTime = targetDuration / steps.length;
+        
+        if (idealWaitTime < 5) {
+          stepsPerTick = Math.ceil(5 / idealWaitTime);
+          waitTime = 5;
+        } else {
+          waitTime = Math.max(5, Math.min(100, idealWaitTime));
+        }
       }
 
-      timerRef.current = setTimeout(() => { setCurrentStepIndex(prev => prev + 1); }, waitTime);
+      timerRef.current = setTimeout(() => { 
+        setCurrentStepIndex(prev => {
+          const nextIndex = prev + stepsPerTick;
+          if (nextIndex >= steps.length - 1) {
+             return steps.length - 1;
+          }
+          return nextIndex;
+        }); 
+      }, waitTime);
     } else if (steps.length > 0 && currentStepIndex >= steps.length - 1) {
       if (isPlaying) {
         setIsPlaying(false);
@@ -239,11 +257,11 @@ const App: React.FC = () => {
           console.log('🎬 Sorting phase ended, triggering finale...');
           playFinishChime();
           hasPlayedFinishChime.current = true;
-          // Small delay so the final sorted state is visible and chime finishes
+          // Exact 3s delay for the "finale" view after sorting finishes
           setTimeout(() => {
             (window as any).isSortingCompleted = true;
             console.log('SORTING_COMPLETED_SUCCESS');
-          }, 1000);
+          }, 3000);
         }
       }
     }

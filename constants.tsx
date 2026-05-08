@@ -374,3 +374,18 @@ function shuffle(arr) {
 export const ARRAY_SIZE = 12;
 export const MAX_VALUE = 100;
 export const SPEEDS = [600, 200, 50, 5];
+
+export const VISUALIZATION_CONFIG = {
+  title: "Parallel Analysis",
+  tagline: "Visualizing Algorithmic Efficiency",
+  xAxisLabel: "Input Size (n)"
+};
+
+export const COMPLEXITIES = [
+  { id: 'constant', label: 'O(1)', name: 'Constant', color: '#10b981', code: 'return 1;' },
+  { id: 'logarithmic', label: 'O(log n)', name: 'Logarithmic', color: '#3b82f6', code: 'return Math.log2(n);' },
+  { id: 'linear', label: 'O(n)', name: 'Linear', color: '#f59e0b', code: 'return n;' },
+  { id: 'linearithmic', label: 'O(n log n)', name: 'Linearithmic', color: '#8b5cf6', code: 'return n * Math.log2(n);' },
+  { id: 'quadratic', label: 'O(n²)', name: 'Quadratic', color: '#ef4444', code: 'return n * n;' },
+  { id: 'exponential', label: 'O(2ⁿ)', name: 'Exponential', color: '#ec4899', code: 'return Math.pow(2, n);' }
+];

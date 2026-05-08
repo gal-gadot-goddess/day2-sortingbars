@@ -18,6 +18,7 @@ const SELECTED_SIZE = args[2] || '12';
 const VIDEO_ONLY = path.join(__dirname, 'temp_video.mp4');
 const AUDIO_ONLY = path.join(__dirname, 'temp_audio.webm');
 const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_THEME}.mp4`);
+const THUMBNAIL_OUTPUT = path.join(__dirname, `thumbnail_${SELECTED_ALGO}_${SELECTED_THEME}.jpg`);
 
 (async () => {
     console.log(`🚀 Launching Capture Engine: [${SELECTED_ALGO}] with [${SELECTED_THEME}] theme and [${SELECTED_SIZE}] elements...`);
@@ -92,7 +93,7 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
     // Prepare completion listeners BEFORE starting the sort
     let stopReason = 'timeout';
     const completionPromise = Promise.race([
-        page.waitForFunction(() => window.isSortingCompleted === true, { timeout: 80000 })
+        page.waitForFunction(() => window.isSortingCompleted === true, { timeout: 180000 })
             .then(() => { stopReason = 'signal'; }),
         new Promise(resolve => {
             page.on('console', msg => {
@@ -102,7 +103,7 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
                 }
             });
         }),
-        new Promise(r => setTimeout(r, 85000)) // Safety timeout slightly longer than waitForFunction
+        new Promise(r => setTimeout(r, 185000)) // Safety timeout
     ]);
 
     console.log('🚀 Triggering Sort...');
@@ -125,13 +126,12 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
     }
 
     if (stopReason === 'signal' || stopReason === 'console_msg') {
-        console.log(`✨ Sort finished (${stopReason}). Capturing finale...`);
+        console.log(`✨ Sort finished (${stopReason}). Stopping capture...`);
     } else {
         console.log('⚠️ Sort reached safety timeout. Force stopping...');
     }
     
-    await new Promise(r => setTimeout(r, 3000)); // 3s finale
-
+    // No extra delay here, the browser handled the 3s finale
     console.log('🛑 Stopping...');
     await videoRecorder.stop();
     await page.evaluate(() => {
@@ -149,6 +149,11 @@ const FINAL_OUTPUT = path.join(__dirname, `output_${SELECTED_ALGO}_${SELECTED_TH
         try {
             execSync(`"${ffmpeg}" -y -i "${VIDEO_ONLY}" -i "${AUDIO_ONLY}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k "${FINAL_OUTPUT}"`);
             console.log(`✅ COMPLETE! Saved to: ${FINAL_OUTPUT}`);
+            
+            // Extract representative thumbnail at 5s
+            console.log('🖼️ Extracting thumbnail at 5s...');
+            execSync(`"${ffmpeg}" -y -ss 00:00:05 -i "${FINAL_OUTPUT}" -vframes 1 -q:v 2 "${THUMBNAIL_OUTPUT}"`);
+            console.log(`✅ Thumbnail saved to: ${THUMBNAIL_OUTPUT}`);
         } catch (e) {
             console.error('Merge failed:', e.message);
         }
