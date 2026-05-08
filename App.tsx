@@ -344,7 +344,7 @@ const App: React.FC = () => {
               const isComparing = currentStep.comparingIndices.includes(idx);
               const isSwapping = currentStep.swappingIndices.includes(idx);
               const isSorted = currentStep.sortedIndices.includes(idx);
-              let color = "bg-white/10";
+              let color = "rgba(255, 255, 255, 0.2)";
               let shadow = "";
               if (isComparing) { color = currentTheme.compare; shadow = currentTheme.compareShadow; }
               if (isSwapping) { color = currentTheme.swap; shadow = currentTheme.swapShadow; }
