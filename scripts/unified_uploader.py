@@ -48,15 +48,20 @@ def mark_uploaded(history, content_hash, platform):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python scripts/unified_uploader.py <video_path>")
+        print("Usage: python scripts/unified_uploader.py <video_path> [thumbnail_path]")
         sys.exit(1)
 
     video_path = Path(sys.argv[1])
+    thumbnail_path = Path(sys.argv[2]) if len(sys.argv) > 2 else None
     metadata_path = Path('metadata.json')
 
     if not video_path.exists():
         print(f"❌ Video not found at {video_path}")
         return
+
+    if thumbnail_path and not thumbnail_path.exists():
+        print(f"⚠️ Thumbnail not found at {thumbnail_path}, proceeding without it.")
+        thumbnail_path = None
 
     if not metadata_path.exists():
         print("❌ metadata.json not found. Run generate_ai_metadata.js first.")
@@ -152,7 +157,7 @@ def main():
         try:
             # extract clean tags list
             tags_list = [t.strip('#') for t in hashtags.split()] if hashtags else []
-            upload_to_youtube(str(video_path), title[:100], yt_description, tags_list)
+            upload_to_youtube(str(video_path), title[:100], yt_description, tags_list, thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
             mark_uploaded(history, content_hash, 'youtube')
             print("✅ YouTube Success")
         except Exception as e: print(f"❌ YouTube failed: {e}")
