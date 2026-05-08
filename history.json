@@ -57,5 +57,11 @@
     "theme": "vampire",
     "size": 23,
     "date": "2026-05-08T06:32:39.524Z"
+  },
+  {
+    "algo": "cocktail_sort",
+    "theme": "frost",
+    "size": 18,
+    "date": "2026-05-08T07:35:27.138Z"
   }
 ]
