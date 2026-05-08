@@ -152,7 +152,7 @@ const THUMBNAIL_OUTPUT = path.join(__dirname, `thumbnail_${SELECTED_ALGO}_${SELE
             
             // Extract representative thumbnail at 5s
             console.log('🖼️ Extracting thumbnail at 5s...');
-            execSync(`"${ffmpeg}" -y -ss 00:00:05 -i "${FINAL_OUTPUT}" -vframes 1 -q:v 2 "${THUMBNAIL_OUTPUT}"`);
+            execSync(`"${ffmpeg}" -y -ss 00:00:05 -i "${FINAL_OUTPUT}" -update 1 -vframes 1 -q:v 2 "${THUMBNAIL_OUTPUT}"`);
             console.log(`✅ Thumbnail saved to: ${THUMBNAIL_OUTPUT}`);
         } catch (e) {
             console.error('Merge failed:', e.message);
