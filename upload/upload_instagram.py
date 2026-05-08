@@ -12,21 +12,21 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-def upload_to_instagram(video_path, caption, is_story=False):
+def upload_to_instagram(video_path, caption, is_story=False, thumbnail_path=None):
     """
     Upload video to Instagram via temporary public URL.
     Can be a Reel or a Story.
     """
     media_type = 'STORIES' if is_story else 'REELS'
-    
+
     print("\n" + "=" * 60)
     print("📸 INSTAGRAM UPLOAD STARTING")
     print("=" * 60)
-    
+
     # Get credentials
     access_token = os.getenv('INSTAGRAM_ACCESS_TOKEN')
     user_id = os.getenv('INSTAGRAM_ACCOUNT_ID')
-    
+
     # Debug info (masked)
     def mask(s): return f"{s[:4]}...{s[-4:]}" if s and len(s) > 8 else ("PLACEHOLDER (***)" if s == "***" else "MISSING")
     print(f"[instagram] User ID: {user_id}")
@@ -36,73 +36,75 @@ def upload_to_instagram(video_path, caption, is_story=False):
         error_msg = "❌ INSTAGRAM_ACCESS_TOKEN not set"
         print(f"[instagram] {error_msg}")
         raise ValueError(error_msg)
-    
+
     if not user_id:
         error_msg = "❌ INSTAGRAM_ACCOUNT_ID not set"
         print(f"[instagram] {error_msg}")
         raise ValueError(error_msg)
-    
+
     print(f"[instagram] ✅ Credentials loaded")
-    
+
     # Check video file
     video_path_obj = Path(video_path)
     if not video_path_obj.exists():
         error_msg = f"❌ Video file not found: {video_path}"
         print(f"[instagram] {error_msg}")
         raise FileNotFoundError(error_msg)
-    
+
     file_size_mb = video_path_obj.stat().st_size / (1024 * 1024)
     print(f"[instagram] ✅ Video file found: {video_path}")
     print(f"[instagram] Video size: {file_size_mb:.2f} MB")
-    
+
     # Limit caption
     caption_limited = caption[:2200] if len(caption) > 2200 else caption
     print(f"[instagram] Caption length: {len(caption_limited)} characters")
-    
+
     try:
         # Step 1: Upload to tmpfiles.org to get public URL
         print(f"[instagram] 📤 Step 1: Uploading to temporary hosting...")
-        
+
+        # Upload Video
         with open(video_path_obj, 'rb') as video_file:
             files = {'file': ('video.mp4', video_file, 'video/mp4')}
-            temp_response = requests.post(
-                'https://tmpfiles.org/api/v1/upload',
-                files=files,
-                timeout=180
-            )
-        
+            temp_response = requests.post('https://tmpfiles.org/api/v1/upload', files=files, timeout=180)
+
         if temp_response.status_code != 200:
-            error_msg = f"Failed to upload to temporary hosting: {temp_response.status_code}"
-            print(f"[instagram] ❌ {error_msg}")
-            print(f"[instagram] Response: {temp_response.text[:200]}")
-            raise Exception(error_msg)
-        
-        temp_data = temp_response.json()
-        if temp_data.get('status') != 'success':
-            error_msg = f"Temporary hosting failed: {temp_data}"
-            print(f"[instagram] ❌ {error_msg}")
-            raise Exception(error_msg)
-        
-        # tmpfiles.org returns URL in format: https://tmpfiles.org/12345
-        # We need direct download link: https://tmpfiles.org/dl/12345
-        temp_url = temp_data.get('data', {}).get('url', '')
-        video_url = temp_url.replace('tmpfiles.org/', 'tmpfiles.org/dl/')
-        
-        print(f"[instagram] ✅ Temporary URL created: {video_url}")
+            raise Exception(f"Video upload to temporary hosting failed: {temp_response.status_code}")
+
+        video_url = temp_response.json().get('data', {}).get('url', '').replace('tmpfiles.org/', 'tmpfiles.org/dl/')
+        print(f"[instagram] ✅ Video URL: {video_url}")
+
+        # Upload Thumbnail if provided
+        cover_url = None
+        if thumbnail_path and os.path.exists(thumbnail_path):
+            print(f"[instagram] 📤 Uploading thumbnail to temporary hosting...")
+            with open(thumbnail_path, 'rb') as thumb_file:
+                files = {'file': ('thumb.jpg', thumb_file, 'image/jpeg')}
+                thumb_temp_response = requests.post('https://tmpfiles.org/api/v1/upload', files=files, timeout=60)
+
+            if thumb_temp_response.status_code == 200:
+                cover_url = thumb_temp_response.json().get('data', {}).get('url', '').replace('tmpfiles.org/', 'tmpfiles.org/dl/')
+                print(f"[instagram] ✅ Cover URL: {cover_url}")
+            else:
+                print(f"[instagram] ⚠️ Thumbnail upload failed, proceeding with default.")
 
         # Give some time for the file to be ready for external access
         print(f"[instagram] ⏳ Waiting 5s for URL stability...")
         time.sleep(5)
 
-        # Step 2: Create Instagram container with video URL        print(f"[instagram] 📦 Step 2: Creating Instagram {media_type} container...")
-        
+        # Step 2: Create Instagram container
+        print(f"[instagram] 📦 Step 2: Creating Instagram {media_type} container...")
+
         container_url = f"https://graph.facebook.com/v18.0/{user_id}/media"
         container_params = {
             'media_type': media_type,
             'video_url': video_url,
             'access_token': access_token
         }
-        
+
+        if cover_url:
+            container_params['cover_url'] = cover_url
+
         if not is_story:
             container_params['caption'] = caption_limited
             container_params['share_to_feed'] = 'false'
