@@ -129,5 +129,11 @@
     "theme": "sunset",
     "size": 19,
     "date": "2026-05-11T21:10:02.620Z"
+  },
+  {
+    "algo": "binary_insertion_sort",
+    "theme": "sunset",
+    "size": 11,
+    "date": "2026-05-12T09:54:07.726Z"
   }
 ]
