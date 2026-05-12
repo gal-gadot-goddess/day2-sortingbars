@@ -135,5 +135,11 @@
     "theme": "sunset",
     "size": 11,
     "date": "2026-05-12T09:54:07.726Z"
+  },
+  {
+    "algo": "merge_sort",
+    "theme": "frost",
+    "size": 10,
+    "date": "2026-05-12T21:10:01.984Z"
   }
 ]
