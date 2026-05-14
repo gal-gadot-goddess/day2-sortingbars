@@ -159,5 +159,11 @@
     "theme": "frost",
     "size": 14,
     "date": "2026-05-14T09:46:30.257Z"
+  },
+  {
+    "algo": "selection_sort",
+    "theme": "cyberpunk",
+    "size": 12,
+    "date": "2026-05-14T20:59:07.818Z"
   }
 ]
