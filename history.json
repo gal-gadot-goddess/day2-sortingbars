@@ -171,5 +171,11 @@
     "theme": "sunset",
     "size": 18,
     "date": "2026-05-15T10:04:48.512Z"
+  },
+  {
+    "algo": "selection_sort",
+    "theme": "frost",
+    "size": 22,
+    "date": "2026-05-15T20:42:03.615Z"
   }
 ]
