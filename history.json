@@ -165,5 +165,11 @@
     "theme": "cyberpunk",
     "size": 12,
     "date": "2026-05-14T20:59:07.818Z"
+  },
+  {
+    "algo": "insertion_sort",
+    "theme": "sunset",
+    "size": 18,
+    "date": "2026-05-15T10:04:48.512Z"
   }
 ]
