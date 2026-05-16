@@ -189,5 +189,11 @@
     "theme": "vampire",
     "size": 10,
     "date": "2026-05-16T11:35:58.019Z"
+  },
+  {
+    "algo": "bubble_sort",
+    "theme": "cyberpunk",
+    "size": 12,
+    "date": "2026-05-16T19:52:22.211Z"
   }
 ]
