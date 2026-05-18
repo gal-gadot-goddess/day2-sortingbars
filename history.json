@@ -207,5 +207,11 @@
     "theme": "frost",
     "size": 12,
     "date": "2026-05-17T19:57:15.666Z"
+  },
+  {
+    "algo": "bitonic_sort",
+    "theme": "vampire",
+    "size": 13,
+    "date": "2026-05-18T12:59:33.997Z"
   }
 ]
