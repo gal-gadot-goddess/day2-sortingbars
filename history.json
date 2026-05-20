@@ -231,5 +231,11 @@
     "theme": "sunset",
     "size": 13,
     "date": "2026-05-19T21:11:59.176Z"
+  },
+  {
+    "algo": "pancake_sort",
+    "theme": "vampire",
+    "size": 11,
+    "date": "2026-05-20T10:43:30.694Z"
   }
 ]
