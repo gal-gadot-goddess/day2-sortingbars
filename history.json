@@ -255,5 +255,11 @@
     "theme": "frost",
     "size": 13,
     "date": "2026-05-21T21:23:04.761Z"
+  },
+  {
+    "algo": "insertion_sort",
+    "theme": "cyberpunk",
+    "size": 24,
+    "date": "2026-05-22T10:42:01.157Z"
   }
 ]
