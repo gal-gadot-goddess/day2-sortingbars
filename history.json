@@ -315,5 +315,11 @@
     "theme": "vampire",
     "size": 24,
     "date": "2026-05-26T22:04:28.382Z"
+  },
+  {
+    "algo": "gnome_sort",
+    "theme": "sunset",
+    "size": 21,
+    "date": "2026-05-27T22:25:05.418Z"
   }
 ]
