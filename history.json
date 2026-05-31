@@ -363,5 +363,11 @@
     "theme": "frost",
     "size": 14,
     "date": "2026-05-31T10:01:10.457Z"
+  },
+  {
+    "algo": "selection_sort",
+    "theme": "vampire",
+    "size": 16,
+    "date": "2026-05-31T20:02:06.096Z"
   }
 ]
