@@ -369,5 +369,11 @@
     "theme": "vampire",
     "size": 16,
     "date": "2026-05-31T20:02:06.096Z"
+  },
+  {
+    "algo": "pancake_sort",
+    "theme": "frost",
+    "size": 19,
+    "date": "2026-06-01T19:32:21.577Z"
   }
 ]
