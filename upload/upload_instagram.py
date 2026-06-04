@@ -8,21 +8,47 @@ load_dotenv()
 
 API_VERSION = "v21.0"
 MAX_POLL_WAIT = 180
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+}
+
 
 def upload_file_to_hosting(file_path):
+    """
+    Try multiple file hosting services in order.
+    Instagram's API needs a URL its crawlers can reach.
+    """
+    with open(file_path, "rb") as f:
+        file_bytes = f.read()
+
     services = [
         {
-            "name": "file.io",
-            "upload": lambda f: requests.post(
-                "https://file.io", files={"file": ("video.mp4", f, "video/mp4")}, timeout=120
+            "name": "catbox.moe",
+            "do_upload": lambda: requests.post(
+                "https://catbox.moe/user/api.php",
+                data={"reqtype": "fileupload"},
+                files={"fileToUpload": ("video.mp4", file_bytes, "video/mp4")},
+                headers=HEADERS,
+                timeout=120,
             ),
-            "parse": lambda r: r.json().get("link"),
+            "parse": lambda r: r.text.strip(),
+        },
+        {
+            "name": "0x0.st",
+            "do_upload": lambda: requests.post(
+                "https://0x0.st",
+                files={"file": ("video.mp4", file_bytes, "video/mp4")},
+                headers=HEADERS,
+                timeout=120,
+            ),
+            "parse": lambda r: r.text.strip(),
         },
         {
             "name": "tmpfiles.org",
-            "upload": lambda f: requests.post(
+            "do_upload": lambda: requests.post(
                 "https://tmpfiles.org/api/v1/upload",
-                files={"file": ("video.mp4", f, "video/mp4")},
+                files={"file": ("video.mp4", file_bytes, "video/mp4")},
+                headers=HEADERS,
                 timeout=120,
             ),
             "parse": lambda r: r.json()
@@ -30,49 +56,82 @@ def upload_file_to_hosting(file_path):
                 .get("url", "")
                 .replace("tmpfiles.org/", "tmpfiles.org/dl/"),
         },
-        {
-            "name": "catbox.moe",
-            "upload": lambda f: requests.post(
-                "https://catbox.moe/user/api.php",
-                data={"reqtype": "fileupload"},
-                files={"fileToUpload": ("video.mp4", f, "video/mp4")},
-                timeout=120,
-            ),
-            "parse": lambda r: r.text.strip(),
-        },
     ]
 
     for svc in services:
         try:
-            with open(file_path, "rb") as f:
-                resp = svc["upload"](f)
+            resp = svc["do_upload"]()
             if resp.status_code in (200, 201, 302):
                 url = svc["parse"](resp)
                 if url and url.startswith("http"):
                     print(f"[hosting] ✅ {svc['name']} → {url}")
                     return url
-            print(f"[hosting] ⚠️ {svc['name']} returned {resp.status_code}: {resp.text[:200]}")
+            print(
+                f"[hosting] ⚠️ {svc['name']} returned {resp.status_code}: {resp.text[:200]}"
+            )
         except Exception as e:
             print(f"[hosting] ❌ {svc['name']} error: {e}")
+
     raise Exception("All file hosting services failed")
 
 
 def upload_thumbnail_to_hosting(thumbnail_path):
+    """Upload thumbnail to catbox.moe (reliable thumbnail hosting)."""
     try:
         with open(thumbnail_path, "rb") as f:
             resp = requests.post(
-                "https://file.io",
-                files={"file": ("thumb.jpg", f, "image/jpeg")},
+                "https://catbox.moe/user/api.php",
+                data={"reqtype": "fileupload"},
+                files={"fileToUpload": ("thumb.jpg", f, "image/jpeg")},
+                headers=HEADERS,
                 timeout=60,
             )
-        if resp.status_code == 200:
-            url = resp.json().get("link")
-            if url:
+        if resp.status_code in (200, 201):
+            url = resp.text.strip()
+            if url.startswith("http"):
                 print(f"[hosting] ✅ thumbnail → {url}")
                 return url
     except Exception as e:
         print(f"[hosting] ⚠️ thumbnail upload failed: {e}")
     return None
+
+
+def wait_for_container(container_id, access_token):
+    """Poll container status until FINISHED, ERROR, or timeout."""
+    waited = 0
+    while waited < MAX_POLL_WAIT:
+        status_url = f"https://graph.facebook.com/{API_VERSION}/{container_id}"
+        status_params = {
+            "fields": "status_code",
+            "access_token": access_token,
+        }
+
+        try:
+            status_response = requests.get(
+                status_url, params=status_params, timeout=30
+            )
+            status_data = status_response.json()
+            status_code = status_data.get("status_code", "UNKNOWN")
+        except Exception as e:
+            status_code = "UNKNOWN"
+
+        print(f"[instagram] Status: {status_code} (waited {waited}s)")
+
+        if status_code == "FINISHED":
+            print("[instagram] ✅ Video processing complete!")
+            return True
+        elif status_code == "ERROR":
+            err = status_data.get("error_message", "Video processing failed")
+            print(f"[instagram] ❌ {err}")
+            raise Exception(err)
+
+        if waited >= 60 and waited % 60 == 0:
+            print(f"[instagram] Still waiting... current response: {status_data}")
+
+        time.sleep(10)
+        waited += 10
+
+    raise Exception("Video processing timed out")
 
 
 def upload_to_instagram(video_path, caption, is_story=False, thumbnail_path=None):
@@ -137,9 +196,10 @@ def upload_to_instagram(video_path, caption, is_story=False, thumbnail_path=None
 
         if not is_story:
             container_params["caption"] = caption_limited
-            container_params["share_to_feed"] = "false"
 
-        container_response = requests.post(container_url, params=container_params, timeout=60)
+        container_response = requests.post(
+            container_url, params=container_params, timeout=60
+        )
 
         if container_response.status_code != 200:
             error_data = container_response.json() if container_response.text else {}
@@ -152,53 +212,20 @@ def upload_to_instagram(video_path, caption, is_story=False, thumbnail_path=None
         print(f"[instagram] ✅ Container created: {container_id}")
 
         print("[instagram] ⏳ Polling for video processing...")
-        waited = 0
-        success = False
-
-        while waited < MAX_POLL_WAIT:
-            status_url = f"https://graph.facebook.com/{API_VERSION}/{container_id}"
-            status_params = {
-                "fields": "status_code,status,error_message",
-                "access_token": access_token,
-            }
-
-            status_response = requests.get(status_url, params=status_params, timeout=30)
-            status_data = status_response.json()
-
-            status_code = (
-                status_data.get("status_code")
-                or status_data.get("status")
-                or "UNKNOWN"
-            )
-
-            print(f"[instagram] Status: {status_code} (waited {waited}s)")
-
-            if status_code == "FINISHED":
-                print("[instagram] ✅ Video processing complete!")
-                success = True
-                break
-            elif status_code == "ERROR":
-                err = status_data.get("error_message", "Video processing failed")
-                print(f"[instagram] ❌ {err}")
-                print(f"[instagram] Full response: {status_data}")
-                raise Exception(err)
-            elif status_code == "UNKNOWN" and waited > 0 and waited % 60 == 0:
-                print(f"[instagram] Full status response: {status_data}")
-
-            time.sleep(10)
-            waited += 10
-
-        if not success:
-            raise Exception("Video processing timed out")
+        wait_for_container(container_id, access_token)
 
         print("[instagram] 📤 Publishing to Instagram...")
-        publish_url = f"https://graph.facebook.com/{API_VERSION}/{user_id}/media_publish"
+        publish_url = (
+            f"https://graph.facebook.com/{API_VERSION}/{user_id}/media_publish"
+        )
         publish_params = {
             "creation_id": container_id,
             "access_token": access_token,
         }
 
-        publish_response = requests.post(publish_url, params=publish_params, timeout=60)
+        publish_response = requests.post(
+            publish_url, params=publish_params, timeout=60
+        )
 
         if publish_response.status_code != 200:
             error_data = publish_response.json() if publish_response.text else {}
