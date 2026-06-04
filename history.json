@@ -399,5 +399,11 @@
     "theme": "vampire",
     "size": 17,
     "date": "2026-06-03T18:11:26.256Z"
+  },
+  {
+    "algo": "merge_sort",
+    "theme": "cyberpunk",
+    "size": 14,
+    "date": "2026-06-04T11:42:23.468Z"
   }
 ]
