@@ -465,5 +465,11 @@
     "theme": "cyberpunk",
     "size": 12,
     "date": "2026-06-07T03:37:44.810Z"
+  },
+  {
+    "algo": "shell_sort",
+    "theme": "vampire",
+    "size": 15,
+    "date": "2026-06-07T10:37:46.265Z"
   }
 ]
