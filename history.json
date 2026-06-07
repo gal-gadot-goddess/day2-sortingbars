@@ -471,5 +471,11 @@
     "theme": "vampire",
     "size": 15,
     "date": "2026-06-07T10:37:46.265Z"
+  },
+  {
+    "algo": "merge_sort",
+    "theme": "vampire",
+    "size": 20,
+    "date": "2026-06-07T17:23:58.256Z"
   }
 ]
