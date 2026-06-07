@@ -459,5 +459,11 @@
     "theme": "frost",
     "size": 11,
     "date": "2026-06-06T17:16:08.714Z"
+  },
+  {
+    "algo": "shell_sort",
+    "theme": "cyberpunk",
+    "size": 12,
+    "date": "2026-06-07T03:37:44.810Z"
   }
 ]
