@@ -100,6 +100,12 @@ async function automateDay2() {
     if (!selectedAlgo) {
         console.log("⚠️ All combinations used! Resetting history to start fresh.");
         fs.writeFileSync(HISTORY_FILE, JSON.stringify([], null, 2));
+        // Also clear upload history so repeated combos don't get skipped
+        const uploadHistoryFile = path.join(__dirname, 'upload_history.json');
+        if (fs.existsSync(uploadHistoryFile)) {
+            fs.writeFileSync(uploadHistoryFile, JSON.stringify({}, null, 2));
+            console.log("🗑️ upload_history.json also cleared.");
+        }
         return automateDay2();
     }
 
