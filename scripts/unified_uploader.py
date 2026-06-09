@@ -18,6 +18,18 @@ from upload.upload_telegram import upload_to_telegram
 
 HISTORY_FILE = Path("upload_history.json")
 
+CREDENTIAL_CHECKS = {
+    'instagram': ['INSTAGRAM_ACCESS_TOKEN', 'INSTAGRAM_ACCOUNT_ID'],
+    'facebook': ['FACEBOOK_ACCESS_TOKEN', 'FACEBOOK_PAGE_ID'],
+    'twitter': ['TWITTER_API_KEY', 'TWITTER_API_SECRET', 'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_SECRET'],
+    'youtube': ['YOUTUBE_CLIENT_ID', 'YOUTUBE_CLIENT_SECRET', 'YOUTUBE_REFRESH_TOKEN'],
+    'threads': ['THREADS_ACCESS_TOKEN', 'THREADS_USER_ID'],
+}
+
+def has_creds(platform):
+    vars = CREDENTIAL_CHECKS.get(platform, [])
+    return all(os.getenv(v) for v in vars)
+
 def load_history():
     if not HISTORY_FILE.exists():
         return {}
@@ -95,82 +107,101 @@ def main():
 
     # 1. Instagram Reel
     if not is_uploaded(history, content_hash, 'instagram_reel'):
-        print("📸 Starting Instagram Reel...")
-        try:
-            upload_to_instagram(str(video_path), instagram_full, is_story=False)
-            mark_uploaded(history, content_hash, 'instagram_reel')
-            print("✅ Instagram Reel Success")
-        except Exception as e: print(f"❌ Instagram Reel failed: {e}")
+        if not has_creds('instagram'):
+            print("⏭️ Skipping Instagram Reel (credentials not configured)")
+        else:
+            print("📸 Starting Instagram Reel...")
+            try:
+                upload_to_instagram(str(video_path), instagram_full, is_story=False)
+                mark_uploaded(history, content_hash, 'instagram_reel')
+                print("✅ Instagram Reel Success")
+            except Exception as e: print(f"❌ Instagram Reel failed: {e}")
     else: print("⏭️ Skipping Instagram Reel")
 
     # 2. Instagram Story
     if not is_uploaded(history, content_hash, 'instagram_story'):
-        print("📸 Starting Instagram Story...")
-        try:
-            upload_to_instagram(str(video_path), title, is_story=True)
-            mark_uploaded(history, content_hash, 'instagram_story')
-            print("✅ Instagram Story Success")
-        except Exception as e: print(f"❌ Instagram Story failed: {e}")
+        if not has_creds('instagram'):
+            print("⏭️ Skipping Instagram Story (credentials not configured)")
+        else:
+            print("📸 Starting Instagram Story...")
+            try:
+                upload_to_instagram(str(video_path), title, is_story=True)
+                mark_uploaded(history, content_hash, 'instagram_story')
+                print("✅ Instagram Story Success")
+            except Exception as e: print(f"❌ Instagram Story failed: {e}")
     else: print("⏭️ Skipping Instagram Story")
 
     # 3. Facebook Reel
     if not is_uploaded(history, content_hash, 'facebook_reel'):
-        print("📘 Starting Facebook Reel...")
-        try:
-            upload_to_facebook(str(video_path), facebook_full, title=title[:100], thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
-            mark_uploaded(history, content_hash, 'facebook_reel')
-            print("✅ Facebook Reel Success")
-        except Exception as e: print(f"❌ Facebook Reel failed: {e}")
+        if not has_creds('facebook'):
+            print("⏭️ Skipping Facebook Reel (credentials not configured)")
+        else:
+            print("📘 Starting Facebook Reel...")
+            try:
+                upload_to_facebook(str(video_path), facebook_full, title=title[:100], thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
+                mark_uploaded(history, content_hash, 'facebook_reel')
+                print("✅ Facebook Reel Success")
+            except Exception as e: print(f"❌ Facebook Reel failed: {e}")
     else: print("⏭️ Skipping Facebook Reel")
 
     # 4. Facebook Story
     if not is_uploaded(history, content_hash, 'facebook_story'):
-        print("📘 Starting Facebook Story...")
-        try:
-            res = upload_to_facebook_story(str(video_path))
-            if isinstance(res, dict) and res.get('status') == 'success':
-                mark_uploaded(history, content_hash, 'facebook_story')
-                print("✅ Facebook Story Success")
-            else:
-                # Some versions of script return string on success. Marking if no exception
-                mark_uploaded(history, content_hash, 'facebook_story')
-                print(f"✅ Facebook Story Success (or warn: {res})")
-        except Exception as e: print(f"❌ Facebook Story failed: {e}")
+        if not has_creds('facebook'):
+            print("⏭️ Skipping Facebook Story (credentials not configured)")
+        else:
+            print("📘 Starting Facebook Story...")
+            try:
+                res = upload_to_facebook_story(str(video_path))
+                if isinstance(res, dict) and res.get('status') == 'success':
+                    mark_uploaded(history, content_hash, 'facebook_story')
+                    print("✅ Facebook Story Success")
+                else:
+                    mark_uploaded(history, content_hash, 'facebook_story')
+                    print(f"✅ Facebook Story Success (or warn: {res})")
+            except Exception as e: print(f"❌ Facebook Story failed: {e}")
     else: print("⏭️ Skipping Facebook Story")
 
     # 5. Twitter / X
     if not is_uploaded(history, content_hash, 'twitter'):
-        print("🐦 Starting Twitter...")
-        try:
-            short_caption = f"{title}\n\n{hashtags}"
-            if len(short_caption) > 280:
-                short_caption = short_caption[:277] + "..."
-            upload_to_twitter(str(video_path), short_caption)
-            mark_uploaded(history, content_hash, 'twitter')
-            print("✅ Twitter Success")
-        except Exception as e: print(f"❌ Twitter failed: {e}")
+        if not has_creds('twitter'):
+            print("⏭️ Skipping Twitter (credentials not configured)")
+        else:
+            print("🐦 Starting Twitter...")
+            try:
+                short_caption = f"{title}\n\n{hashtags}"
+                if len(short_caption) > 280:
+                    short_caption = short_caption[:277] + "..."
+                upload_to_twitter(str(video_path), short_caption)
+                mark_uploaded(history, content_hash, 'twitter')
+                print("✅ Twitter Success")
+            except Exception as e: print(f"❌ Twitter failed: {e}")
     else: print("⏭️ Skipping Twitter")
 
     # 6. YouTube Shorts
     if not is_uploaded(history, content_hash, 'youtube'):
-        print("🎥 Starting YouTube Shorts...")
-        try:
-            # extract clean tags list
-            tags_list = [t.strip('#') for t in hashtags.split()] if hashtags else []
-            upload_to_youtube(str(video_path), title[:100], yt_description, tags_list, thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
-            mark_uploaded(history, content_hash, 'youtube')
-            print("✅ YouTube Success")
-        except Exception as e: print(f"❌ YouTube failed: {e}")
+        if not has_creds('youtube'):
+            print("⏭️ Skipping YouTube (credentials not configured)")
+        else:
+            print("🎥 Starting YouTube Shorts...")
+            try:
+                tags_list = [t.strip('#') for t in hashtags.split()] if hashtags else []
+                upload_to_youtube(str(video_path), title[:100], yt_description, tags_list, thumbnail_path=str(thumbnail_path) if thumbnail_path else None)
+                mark_uploaded(history, content_hash, 'youtube')
+                print("✅ YouTube Success")
+            except Exception as e: print(f"❌ YouTube failed: {e}")
     else: print("⏭️ Skipping YouTube")
 
     # 7. Threads
     if not is_uploaded(history, content_hash, 'threads'):
-        print("🧵 Starting Threads...")
-        try:
-            upload_to_threads(str(video_path), threads_full)
-            mark_uploaded(history, content_hash, 'threads')
-            print("✅ Threads Success")
-        except Exception as e: print(f"❌ Threads failed: {e}")
+        if not has_creds('threads'):
+            print("⏭️ Skipping Threads (credentials not configured)")
+        else:
+            print("🧵 Starting Threads...")
+            try:
+                upload_to_threads(str(video_path), threads_full)
+                mark_uploaded(history, content_hash, 'threads')
+                print("✅ Threads Success")
+            except Exception as e: print(f"❌ Threads failed: {e}")
     else: print("⏭️ Skipping Threads")
     
     # 8. VK
