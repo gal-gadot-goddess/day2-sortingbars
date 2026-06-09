@@ -320,7 +320,6 @@
     "facebook_story",
     "vk"
   ],
-
   "c819b303e11a52430eb03d6f611ebfc4": [
     "facebook_reel",
     "facebook_story",
@@ -394,6 +393,13 @@
     "vk"
   ],
   "46e346d8f79974bbd0b00b2bf752d8ef": [
+    "facebook_reel",
+    "facebook_story",
+    "vk"
+  ],
+  "800b093ed8cbc10af27b514efed4839d": [
+    "instagram_reel",
+    "instagram_story",
     "facebook_reel",
     "facebook_story",
     "vk"
