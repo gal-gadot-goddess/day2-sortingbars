@@ -52,5 +52,11 @@
     "theme": "sunset",
     "size": 21,
     "date": "2026-06-10T03:07:59.435Z"
+  },
+  {
+    "algo": "bubble_sort",
+    "theme": "sunset",
+    "size": 19,
+    "date": "2026-06-10T11:51:37.144Z"
   }
 ]
