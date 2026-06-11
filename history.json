@@ -70,5 +70,11 @@
     "theme": "vampire",
     "size": 16,
     "date": "2026-06-11T03:42:30.307Z"
+  },
+  {
+    "algo": "merge_sort",
+    "theme": "sunset",
+    "size": 18,
+    "date": "2026-06-11T12:19:33.577Z"
   }
 ]
