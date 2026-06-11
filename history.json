@@ -64,5 +64,11 @@
     "theme": "vampire",
     "size": 21,
     "date": "2026-06-10T18:41:22.663Z"
+  },
+  {
+    "algo": "insertion_sort",
+    "theme": "vampire",
+    "size": 16,
+    "date": "2026-06-11T03:42:30.307Z"
   }
 ]
