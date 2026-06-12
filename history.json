@@ -88,5 +88,11 @@
     "theme": "vampire",
     "size": 14,
     "date": "2026-06-12T03:38:02.338Z"
+  },
+  {
+    "algo": "odd_even_sort",
+    "theme": "frost",
+    "size": 21,
+    "date": "2026-06-12T11:54:17.817Z"
   }
 ]
