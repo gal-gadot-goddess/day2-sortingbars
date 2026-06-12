@@ -94,5 +94,11 @@
     "theme": "frost",
     "size": 21,
     "date": "2026-06-12T11:54:17.817Z"
+  },
+  {
+    "algo": "bubble_sort",
+    "theme": "frost",
+    "size": 16,
+    "date": "2026-06-12T18:14:05.756Z"
   }
 ]
