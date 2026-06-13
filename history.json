@@ -106,5 +106,11 @@
     "theme": "sunset",
     "size": 24,
     "date": "2026-06-13T03:06:17.703Z"
+  },
+  {
+    "algo": "bubble_sort",
+    "theme": "vampire",
+    "size": 23,
+    "date": "2026-06-13T10:38:05.314Z"
   }
 ]
