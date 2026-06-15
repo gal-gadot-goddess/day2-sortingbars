@@ -142,5 +142,11 @@
     "theme": "vampire",
     "size": 10,
     "date": "2026-06-15T03:50:17.835Z"
+  },
+  {
+    "algo": "binary_insertion_sort",
+    "theme": "frost",
+    "size": 20,
+    "date": "2026-06-15T14:01:49.041Z"
   }
 ]
