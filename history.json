@@ -148,5 +148,11 @@
     "theme": "frost",
     "size": 20,
     "date": "2026-06-15T14:01:49.041Z"
+  },
+  {
+    "algo": "cocktail_sort",
+    "theme": "sunset",
+    "size": 12,
+    "date": "2026-06-15T19:45:24.459Z"
   }
 ]
