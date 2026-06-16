@@ -160,5 +160,11 @@
     "theme": "frost",
     "size": 13,
     "date": "2026-06-16T03:47:44.732Z"
+  },
+  {
+    "algo": "cycle_sort",
+    "theme": "vampire",
+    "size": 25,
+    "date": "2026-06-16T13:02:36.920Z"
   }
 ]
