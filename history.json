@@ -154,5 +154,11 @@
     "theme": "sunset",
     "size": 12,
     "date": "2026-06-15T19:45:24.459Z"
+  },
+  {
+    "algo": "gnome_sort",
+    "theme": "frost",
+    "size": 13,
+    "date": "2026-06-16T03:47:44.732Z"
   }
 ]
