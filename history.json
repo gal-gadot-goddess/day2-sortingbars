@@ -190,5 +190,11 @@
     "theme": "cyberpunk",
     "size": 12,
     "date": "2026-06-17T18:20:14.369Z"
+  },
+  {
+    "algo": "bogo_sort",
+    "theme": "frost",
+    "size": 14,
+    "date": "2026-06-18T03:36:36.515Z"
   }
 ]
