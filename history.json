@@ -244,5 +244,11 @@
     "theme": "vampire",
     "size": 16,
     "date": "2026-06-21T03:48:57.391Z"
+  },
+  {
+    "algo": "selection_sort",
+    "theme": "sunset",
+    "size": 22,
+    "date": "2026-06-21T11:25:49.794Z"
   }
 ]
