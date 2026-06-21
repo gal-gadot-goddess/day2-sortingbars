@@ -238,5 +238,11 @@
     "theme": "frost",
     "size": 25,
     "date": "2026-06-20T10:40:58.480Z"
+  },
+  {
+    "algo": "shell_sort",
+    "theme": "vampire",
+    "size": 16,
+    "date": "2026-06-21T03:48:57.391Z"
   }
 ]
