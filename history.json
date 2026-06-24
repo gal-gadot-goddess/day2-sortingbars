@@ -304,5 +304,11 @@
     "theme": "frost",
     "size": 17,
     "date": "2026-06-24T10:59:48.402Z"
+  },
+  {
+    "algo": "merge_sort",
+    "theme": "cyberpunk",
+    "size": 25,
+    "date": "2026-06-24T18:03:53.069Z"
   }
 ]
