@@ -298,5 +298,11 @@
     "theme": "cyberpunk",
     "size": 24,
     "date": "2026-06-24T03:04:03.132Z"
+  },
+  {
+    "algo": "bitonic_sort",
+    "theme": "frost",
+    "size": 17,
+    "date": "2026-06-24T10:59:48.402Z"
   }
 ]
