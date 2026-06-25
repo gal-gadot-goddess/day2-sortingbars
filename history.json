@@ -316,5 +316,11 @@
     "theme": "sunset",
     "size": 24,
     "date": "2026-06-25T03:02:56.595Z"
+  },
+  {
+    "algo": "stooge_sort",
+    "theme": "frost",
+    "size": 14,
+    "date": "2026-06-25T10:52:37.350Z"
   }
 ]
