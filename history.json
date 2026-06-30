@@ -406,5 +406,11 @@
     "theme": "frost",
     "size": 25,
     "date": "2026-06-30T11:06:09.397Z"
+  },
+  {
+    "algo": "binary_insertion_sort",
+    "theme": "sunset",
+    "size": 20,
+    "date": "2026-06-30T17:50:40.727Z"
   }
 ]
