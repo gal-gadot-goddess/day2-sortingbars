@@ -448,5 +448,11 @@
     "theme": "sunset",
     "size": 18,
     "date": "2026-07-02T17:54:56.810Z"
+  },
+  {
+    "algo": "binary_insertion_sort",
+    "theme": "cyberpunk",
+    "size": 11,
+    "date": "2026-07-03T02:44:36.072Z"
   }
 ]
