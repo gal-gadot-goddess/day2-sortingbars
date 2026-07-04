@@ -472,5 +472,11 @@
     "theme": "frost",
     "size": 16,
     "date": "2026-07-04T10:15:50.127Z"
+  },
+  {
+    "algo": "shell_sort",
+    "theme": "sunset",
+    "size": 22,
+    "date": "2026-07-04T17:12:47.919Z"
   }
 ]
