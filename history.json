@@ -64,5 +64,11 @@
     "theme": "vampire",
     "size": 16,
     "date": "2026-07-10T02:44:21.097Z"
+  },
+  {
+    "algo": "shell_sort",
+    "theme": "vampire",
+    "size": 22,
+    "date": "2026-07-10T11:01:15.047Z"
   }
 ]
