@@ -94,5 +94,11 @@
     "theme": "frost",
     "size": 19,
     "date": "2026-07-11T17:02:58.391Z"
+  },
+  {
+    "algo": "merge_sort",
+    "theme": "vampire",
+    "size": 15,
+    "date": "2026-07-12T02:33:37.361Z"
   }
 ]
