@@ -112,5 +112,11 @@
     "theme": "sunset",
     "size": 15,
     "date": "2026-07-12T17:05:11.409Z"
+  },
+  {
+    "algo": "insertion_sort",
+    "theme": "vampire",
+    "size": 14,
+    "date": "2026-07-13T02:36:25.587Z"
   }
 ]
