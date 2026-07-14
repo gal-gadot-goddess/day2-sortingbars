@@ -130,5 +130,11 @@
     "theme": "vampire",
     "size": 22,
     "date": "2026-07-13T18:02:22.387Z"
+  },
+  {
+    "algo": "cocktail_sort",
+    "theme": "vampire",
+    "size": 12,
+    "date": "2026-07-14T02:13:28.820Z"
   }
 ]
